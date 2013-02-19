@@ -4,13 +4,6 @@ os.loadAPI("/disk/apis/advrs")
 -- Config --
 advrs.setSides("left", "left")
 thinkTime = 0.5
-
-reactorList = {
-  Reactor:New("A", 3, colors.magenta, colors.orange, colors.white, colors.lightBlue),
-  Reactor:New("B", 3, colors.pink, colors.lime, colors.yellow, colors.gray),
-  Reactor:New("C", 3, colors.blue, colors.cyan, colors.lightGray, colors.purple),
-  Reactor:New("D", 3, colors.brown, colors.green, colors.red, colors.black)
-}
 -- Config End --
 
 -- ##############################################
@@ -163,6 +156,13 @@ function Tick()
   end
   os.sleep(thinkTime)
 end
+
+reactorList = {
+  Reactor:New("A", 3, colors.magenta, colors.orange, colors.white, colors.lightBlue),
+  Reactor:New("B", 3, colors.pink, colors.lime, colors.yellow, colors.gray),
+  Reactor:New("C", 3, colors.blue, colors.cyan, colors.lightGray, colors.purple),
+  Reactor:New("D", 3, colors.brown, colors.green, colors.red, colors.black)
+}
 
 while true do
   
