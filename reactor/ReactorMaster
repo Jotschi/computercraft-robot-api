@@ -1,5 +1,5 @@
 -- Load API
-os.loadAPI("disk/advrs")
+os.loadAPI("/disk/apis/advrs")
 
 -- Config --
 advrs.setSides("left", "left")
