@@ -1,0 +1,17 @@
+
+print("Starting in..")
+for i=4,0 do
+  print(i)
+  os.sleep(1)
+end 
+
+while true do
+  shell.setDir("disk")
+  if (shell.run("cruncher")) then
+    print("Termination detected")
+    break
+  else
+    print("Crash detected. Restarting")
+  end
+  os.sleep(5)
+end

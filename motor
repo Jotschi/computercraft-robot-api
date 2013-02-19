@@ -1,0 +1,65 @@
+-- Load APIs
+os.loadAPI("disk/advrs")
+
+-- How long to wait between steps
+local stepTime = 1.0
+
+local signalTime = 0.5
+
+-- Color definition to steer the motor
+-- steercolor = sc
+local sc = {
+  up       = colors.orange,
+  down     = colors.white,
+  left     = colors.yellow,
+  right    = colors.magenta,
+  forward  = colors.lightBlue,
+  backward = colors.lime,
+  off      = 0,
+}
+
+function move(steerColor,n)
+  for i=1,n do
+    advrs.switch(steerColor, signalTime)
+    os.sleep(stepTime)
+    advrs.switch(steerColor, signalTime)
+    os.sleep(stepTime)
+  end
+end
+
+--function startMine(nSteps)
+--  action(down,nSteps)
+--  action(up, nSteps)
+--end
+
+function left(nSteps) 
+  move(sc.left, nSteps)
+  return true
+end
+
+function right(nSteps)
+  move(sc.right, nSteps)
+  return true
+end
+
+function forward(nSteps)
+  move(sc.forward, nSteps)
+  return true
+end
+
+function backward(nSteps)
+  move(sc.backward, nSteps)
+  return true
+end
+
+function up(nSteps)
+  move(sc.up, nSteps)
+  return true
+end
+
+function down(nSteps)
+  move(sc.down,nSteps)
+  return true
+end
+
+

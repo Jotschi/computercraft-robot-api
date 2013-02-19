@@ -1,0 +1,87 @@
+os.loadAPI("disk/subspace")
+
+-- TODO use cc id
+local serverId = 2
+
+local commands = {}
+jobs = {
+  id
+} 
+
+-- registerCommand("move",move,"direction","steps")
+function registerCommand(cmd, callback, ...)
+  commands.name = cmd
+  commands.callback = callback
+  for i,v in ipairs(arg) do
+    commands.
+  print("Callback "..cmd.." was added")
+end
+
+function processCommand(data)
+   --print("Processing registered command "..data.cmd)
+   jobs[data.cmd] = "RUNNING"
+   subspace.send(data.address, {address=data.address,code ="ACK"})
+
+   local answer = commands[data.cmd](data);
+
+   answer["time"] = os.time()
+   answer["address"] = data.address
+   subspace.send(data.address, answer)
+
+   jobs[data.cmd] = nil
+end
+
+function handleStatusRequest(data) 
+  local answer = {}
+  if (jobs[data.jobname]) then 
+    answer["state"] = jobs[data.jobname]
+    --print("Job " .. data.jobname .. " got status " .. answer["state"])
+  else 
+    print("Job " .. data.jobname .. " was not found.") 
+    answer["state"] = "NOTFOUND"
+  end
+  --print("Sending answer to "..data.address)
+  subspace.send(data.address, answer)
+end
+
+function handleCommandRequest(data)
+  local answer = {}
+  if (jobs[data.cmd]) then
+    print("Job " .. data.cmd .. " is already running")
+    answer["code"] = jobs[data.cmd]
+    subspace.send(data.address,answer)
+  else
+    processCommand(data) 
+    answer["code"] = "DONE"
+  end
+end
+
+function fetchRequest(id) 
+    local data = subspace.receive(serverId)
+    if not (data) or not (data.cmd) and not (data == "NA") then
+      return false
+    end
+    return data
+end
+
+function handleRequest(id)
+  while true do
+    local data = fetchRequest(id) 
+    if (data == false) then
+    
+    elseif (data.cmd == "job-status") then
+    
+      handleStatusRequest(data)
+    elseif (commands[data.cmd]) then
+    
+      handleCommandRequest(data)
+    end
+    os.sleep(0.1)
+   end
+end
+
+function startServer() 
+  parallel.waitForAll(function() handleRequest(1) end, function() handleRequest(2) end)
+end
+
+

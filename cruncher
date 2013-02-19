@@ -1,0 +1,222 @@
+-- Load Apis
+os.loadAPI("disk/advrs")
+os.loadAPI("disk/subspace")
+os.loadAPI("disk/motor")
+os.loadAPI("disk/mininggps")
+os.loadAPI("disk/cServer")
+
+--print(tostring(advrs.isSet(colors.black)))
+--error("test")
+
+-- Init Vars
+local cGpsDockSet = colors.gray
+local cGpsDockBreak = colors.pink
+local cGpsInRange = colors.black
+local cEmergency = colors.red
+local cDrill = colors.green
+
+-- Functions
+function gpsDock()
+  for i=1,300 do
+    if (advrs.isSet(cGpsInRange)) then
+      return {code="OK: GPS DOCKED"}
+    end
+    
+    checkJobEmergencyStop("gpsdock")
+    
+    motor.up(1)
+  end
+  return {code="ERROR: GPS FAILED TO DOCK"}
+end
+
+function gpsUndock()
+  checkJobEmergencyStop("gpsundock")
+
+  if not (advrs.isSet(cGpsInRange)) then
+    return {code="OK: GPS UNDOCKED"}
+  end
+  advrs.switch(cGpsDockBreak, 1.0)
+  motor.down(1)
+  os.sleep(1)
+  if (advrs.isSet(cGpsInRange)) then
+    return {code="ERROR: GPS FAILED TO UNDOCK"}
+  end
+  advrs.switch(cGpsDockSet, 1.0)
+  return {code="OK: GPS UNDOCKED"}
+end
+
+function isGpsDocked()
+  return advrs.isSet(cGpsInRange)
+end
+
+local lastHeight = -1
+function mining(data)
+  if (isGpsDocked()) then
+    return {code="ERROR: STILL DOCKED"}
+  end
+  
+  local stepsDone = 0
+  while true do
+    
+    checkJobEmergencyStop("mining")
+    
+    advrs.add(cDrill)
+    os.sleep(0.3)
+    advrs.remove(cDrill)
+    
+    motor.down(1)
+    
+    if (mininggps.getHeight() == lastHeight) then
+      
+      advrs.add(cDrill)
+      os.sleep(1)
+      advrs.remove(cDrill)
+      os.sleep(1)
+      motor.down(1)
+      
+      if (mininggps.getHeight() == lastHeight) then
+        cServer.jobs["mining"] = "MOVING BACK: CAN'T GO ANY DEEPER, TRIED 1 times"
+        break
+      end
+    end
+    lastHeight = mininggps.getHeight()
+    stepsDone = stepsDone + 1
+    
+    if (stepsDone >= data.nSteps) then
+      cServer.jobs["mining"] = "MOVING BACK: REACHED END"
+      break
+    end
+  end
+  
+  print(cServer.jobs["mining"])
+  lastHeight = -1
+  
+  while true do
+  
+    checkJobEmergencyStop("mining")
+    
+    motor.up(1)
+    
+    for i=1,(mininggps.getHeight() == lastHeight) do
+      
+      motor.up(1)
+      
+      if (i >= 5) then
+        return {code="ERROR: CRUNCHER IS STUCK, TRIED "..tostring(i).." times"}
+      end
+    end
+    
+    lastHeight = mininggps.getHeight()
+    stepsDone = stepsDone - 1
+    
+    if (isGpsDocked()) then
+      return {code="OK: MINING DONE, GPS DOCKED"}
+    end
+    
+    if (stepsDone <= 0) then
+      break
+    end
+  end
+  return {code="OK: MINING DONE"}
+end
+
+function checkJobEmergencyStop(data)
+  if (isEmergencyStopEngaged()) then
+    data.status = STATUS.PENDING
+    data.message = "EMERGENCY STOP ENABLED"
+    
+    while isEmergencyStopEngaged() do
+      os.sleep(1)
+    end
+    cServer.jobs[jobName] = "CONTINUING"
+    print(cServer.jobs[jobName])
+  end
+end
+
+function isEmergencyStopEngaged()
+  return advrs.isSet(cEmergency)
+end
+
+function wrapMove(data)
+
+  if not (isGpsDocked()) then
+    data.status = STATUS.ERROR
+    data.message = "GPS is not docked"
+    return data
+  end
+  
+  -- data.cmd : String
+  -- data.direction : String
+  -- data.steps : Int
+  -- data.status : Int (0=NOT FOUND; 1=PENDING; 2=RUNNING; 3=DONE; 4=ERROR)
+  -- data.message : String
+  -- data.timeout : Int
+  
+  local directionList = {}
+  list["forward"] = motor.forward(1)
+  list["backword"] = motor.backward(1)
+  list["left"] = motor.left(1)
+  list["right"] = motor.right(1)
+  list["up"] = motor.up(1)
+  list["down"] motor.down(1)
+  
+  if directionList[data.direction] == nil then
+    data.status = STATUS.ERROR
+    data.message = "Direction '"..data.direction.."' is not valid"
+    return data
+  end
+  
+  while true do
+    
+    checkJobEmergencyStop(data.cmd)
+    
+    
+  end
+  
+  data.status = 0
+  return data
+end
+
+function getStatus()
+  local data = {}
+  data["code"] = "OK"
+  data["height"] = mininggps.getHeight()
+  data["break-enabled"] = isEmergencyStopEngaged()
+  data["gpsdocked"] = isGpsDocked()
+  return data
+end
+
+function setup()
+  cServer.registerCommand("move", wrapMove)
+  cServer.registerCommand("status",getStatus)
+  cServer.registerCommand("gpsundock",gpsUndock)
+  cServer.registerCommand("gpsdock",gpsDock)
+  cServer.registerCommand("mining",mining)
+end
+
+function main()
+  setup()
+  while true do
+    if (isEmergencyStopEngaged()) then
+      print("EMERGENCY STOP ENABLED")
+    else
+--    motor.up(1)
+    end
+    os.sleep(1)
+  end
+end
+
+function handleTerm()
+ while true do
+   event, scancode = os.pullEvent("key")
+   if scancode == 29 then
+     advrs.set(0)
+     error("User abort")
+   end
+   os.sleep(1)
+ end
+end
+
+--print(gpsDock().code)
+--print(gpsUndock().code)
+parallel.waitForAll(main, handleTerm, cServer.startServer)

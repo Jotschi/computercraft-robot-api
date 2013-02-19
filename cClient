@@ -1,0 +1,51 @@
+os.loadAPI("disk/subspace")
+
+local serverId = 2
+local requestTimeout=1
+
+function sendRequestFor(data)
+    print("Requesting new Job: '"..data.cmd.."'")
+    data["address"] = os.getComputerID() .. "-" .. os.clock()
+    data["ts"] = os.time()
+    subspace.send(serverId, data)
+    for i=1,requestTimeout do
+      local data = subspace.receive(data["address"])
+      if not (data) or (data == "NA") then
+        --print("No answer")
+      elseif (data.code) then
+        --print("got "..data.code)
+        return data
+      else
+        return data
+      end
+      os.sleep(0.1)
+    end
+    return false
+end
+
+function getExitCode(data)
+  if not (data) or not (data["address"]) then
+    return false
+  end
+
+  local answer = subspace.receive(data["address"])
+  return answer
+end
+
+function sendCommand(cmd)
+   --os.sleep(3)
+   print("Sending command ".. cmd)
+   local response = sendRequestFor(cmd)
+   if not (response) then
+      print(os.time().." server did not responde")
+      return false
+   elseif (response.code == "OK") then
+      print("command "..cmd.." was executed")
+      return response
+   else 
+      print("Unknown response")
+      return false
+   end
+end
+
+

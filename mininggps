@@ -1,0 +1,11 @@
+function getHeight() 
+  rednet.open("top")
+  --print("Connecting to gps")
+  rednet.broadcast("PING")
+  x,y,distance = rednet.receive()
+  local delta = 10
+  local height = delta + distance
+  rednet.close("top")
+  return height
+end
+

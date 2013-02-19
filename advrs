@@ -1,0 +1,75 @@
+-- Connected Sides
+local outputSide = "left"
+local inputSide = "left"
+
+-- Cable States
+local output = 0
+local input = 0
+
+function setSides(strInputSide, strOutputSide)
+  inputSide = strInputSide
+  outputSide = strOutputSide
+end
+
+function read()
+  output = rs.getBundledOutput(outputSide)
+  input = rs.getBundledInput(inputSide)
+end
+
+function write()
+  rs.setBundledOutput(outputSide, output)
+end
+
+function isSet(color)
+  read()
+  if (colors.test(output, color)) then
+    return true
+  elseif(colors.test(input, color)) then
+    return true
+  end
+  return false
+end
+
+function add(color)
+  output = bit.bor(output, color)
+  write()
+end
+
+function remove(color)
+  local invert = bit.bnot(color)
+  output = bit.band(output, invert)
+  write()
+end
+
+function switch(color, timetohold)
+  add(color)
+  os.sleep(timetohold)
+  remove(color)
+  os.sleep(timetohold)
+end
+
+function toggle(color)
+  if(isSet(color)) then
+    remove(color)
+  else
+    add(color)
+  end
+end
+
+function set(color)
+  output = color
+  write()
+end
+
+os.pullEventBackup = os.pullEvent
+function os.pullEvent()
+  local event, p1, p2, p3, p4, p5 = os.pullEventRaw()
+  if (event == "terminate") then
+    set(0)
+    os.pullEvent = os.pullEventBackup
+    error("AdvRS: RedStone signals Off")
+  end
+  return event, p1, p2, p3, p4, p5
+end
+
+set(0)

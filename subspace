@@ -1,0 +1,29 @@
+STATUS = {
+  NONE = 0,
+  PENDING = 1,
+  RUNNING = 2,
+  DONE = 3,
+  ERROR = 4,
+}
+
+function send(id, data)
+  local postContent = textutils.serialize(data)
+  local socket = http.post("http://minecraft.office/?id=".. id .. "&cmd=send", postContent);
+  if not (socket) then
+    local socket = http.get("http://minecraft.office/?id="..id.."&cmd=fetch")
+  end
+
+  local text = socket.readAll()
+  socket.close();
+  return text
+end
+
+function receive(id) 
+  local socket = http.get("http://minecraft.office/?id="..id.."&cmd=fetch")
+
+  if not (socket) then
+    local socket = http.get("http://minecraft.office/?id="..id.."&cmd=fetch")
+  end
+  local text = socket.readAll()  
+  return textutils.unserialize(text)
+end
