@@ -1,4 +1,4 @@
-os.loadAPI("disk/subspace")
+os.loadAPI("disk/apis/subspace")
 
 -- TODO use cc id
 local serverId = 2

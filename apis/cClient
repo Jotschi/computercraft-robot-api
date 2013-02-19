@@ -1,4 +1,4 @@
-os.loadAPI("disk/subspace")
+os.loadAPI("disk/apis/subspace")
 
 local serverId = 2
 local requestTimeout=1

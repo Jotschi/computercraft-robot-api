@@ -1,4 +1,4 @@
-os.loadAPI("disk/advrs")
+os.loadAPI("disk/apis/advrs")
 advrs.setSides("back", "back")
 
 mtth = 0.2

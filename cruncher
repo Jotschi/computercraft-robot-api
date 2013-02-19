@@ -1,9 +1,9 @@
 -- Load Apis
-os.loadAPI("disk/advrs")
-os.loadAPI("disk/subspace")
-os.loadAPI("disk/motor")
-os.loadAPI("disk/mininggps")
-os.loadAPI("disk/cServer")
+os.loadAPI("disk/apis/advrs")
+os.loadAPI("disk/apis/subspace")
+os.loadAPI("disk/apis/motor")
+os.loadAPI("disk/apis/mininggps")
+os.loadAPI("disk/apis/cServer")
 
 --print(tostring(advrs.isSet(colors.black)))
 --error("test")

@@ -1,5 +1,5 @@
 -- API
-os.loadAPI("disk/cClient")
+os.loadAPI("disk/apis/cClient")
 
 -- Vars
 local sec = peripheral.wrap("left")

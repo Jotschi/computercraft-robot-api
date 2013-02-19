@@ -1,5 +1,5 @@
 -- Load APIs
-os.loadAPI("disk/advrs")
+os.loadAPI("disk/apis/advrs")
 
 -- How long to wait between steps
 local stepTime = 1.0
