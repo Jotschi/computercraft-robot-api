@@ -1,7 +1,38 @@
-if (args[1] == "pull) then
-  local socket = http.get("http://minecraft.office/git.php?id="..args[1])
-  local text = socket.readAll()
+local args = { ... }
+
+function getID() 
+  local id =  disk.getDiskID("top")
+  if id then
+    return id
+  end
+ 
+  id =  disk.getDiskID("left")
+
+  if id then 
+    return id
+  end
+
+  id =  disk.getDiskID("right")
+
+  if id then
+    return id
+  end
+
+
+  id =  disk.getDiskID("bottom")
+
+  if id then
+    return id
+  end
+end
+
+if (args[1] == "pull") then
+  local diskId = getID()
+  local socket = http.get("http://minecraft.office/git.php?id="..diskId .. "&cmd="..args[1].."%20"..args[2].."%20"..args[3])
+    local text = socket.readAll()
   print(text)  
 else 
   print("Currently only git pull is supported")
 end
+
+
