@@ -1,0 +1,169 @@
+os.loadAPI("disk/advrs")
+-- Config --
+advrs.setSides("left", "left")
+thinkTime = 0.5
+-- Config End --
+
+-- Reactor 'class'
+Reactor = {
+  name = "0",
+  restTime = 0,
+  colorReactor = 0,
+  colorThermalCold = 0,
+  colorThermalHot = 0,
+  colorMfsu = 0,
+}
+function Reactor:New(name, restTime, colorReactor, colorThermalCold, colorThermalHot, colorMfsu)
+  local obj = setmetatable({}, {__index = self})
+  obj.name = name
+  obj.restTime = restTime
+  obj.colorReactor = colorReactor
+  obj.colorThermalCold = colorThermalCold
+  obj.colorThermalHot = colorThermalHot
+  obj.colorMfsu = colorMfsu
+  return obj
+end
+  
+function Reactor:IsHot()
+  return advrs.isSet(self.colorThermalHot)
+end
+
+function Reactor:IsCold()
+  return advrs.isSet(self.colorThermalCold)
+end
+  
+function Reactor:IsMfsuFull()
+  return advrs.isSet(self.colorMfsu)
+end
+  
+function Reactor:SetReactorState(state)
+  if (state == true) then
+    advrs.add(self.colorReactor)
+  else
+    advrs.remove(self.colorReactor)
+  end
+end
+
+function Reactor:PrintTableHead()
+  term.clear()
+  term.setCursorPos(1,1)
+  
+  term.write("Name Active Cold Hot MFSU Rest")
+  print("")
+  term.write("====+======+====+===+====+====")
+  print("")
+end
+
+function Reactor:PrintTableLine()
+  --term.clear()
+  --term.setCursorPos(1,1)
+  
+  term.write(self.name.."    ")
+  term.write(self:toX(self.colorReactor).."    ")
+  term.write(self:toX(self.colorThermalCold).."  ")
+  term.write(self:toX(self.colorThermalHot).." ")
+  term.write(self:toX(self.colorMfsu).."  ")
+  term.write(tostring(math.ceil(self:GetRestTime())
+  ))
+  print("")
+end
+
+function Reactor:toX(color)
+  if (advrs.isSet(color)) then
+    return "[X]"
+  else
+    return "[ ]"
+  end
+end
+
+function Reactor:SetRestTime(restTime)
+  self.restTime = restTime / thinkTime
+end
+
+function Reactor:GetRestTime()
+  return self.restTime * thinkTime
+end
+
+function Reactor:ReduceRestTime()
+  if (self.restTime > 0) then
+    self.restTime = self.restTime - 1
+    return true
+  else
+    self.restTime = 0
+    return false
+  end
+end
+      
+function Reactor:CheckReactor()
+
+  if (self:IsMfsuFull()) then
+    self:SetReactorState(false)
+    self:SetRestTime(5)
+    return
+  end
+  
+  if (self:ReduceRestTime()) then
+    return
+  end
+  
+  if (self:IsHot()) then
+    self:SetReactorState(false)
+    return
+  end
+  
+  if (self:IsCold()) then
+    self:SetReactorState(true)
+    return
+  end
+  
+end
+
+function Reactor:Shutdown()
+  self:SetReactorState(false)
+end
+-- Reactor 'class' End
+
+function ShowReactorTable()
+  Reactor:PrintTableHead()
+  for i=1,#reactorList do
+    reactorList[i]:PrintTableLine()
+  end
+end
+
+
+reactorList = {
+  Reactor:New("A", 3, colors.magenta, colors.orange, colors.white, colors.lightBlue),
+  Reactor:New("B", 3, colors.pink, colors.lime, colors.yellow, colors.gray),
+  Reactor:New("C", 3, colors.blue, colors.cyan, colors.lightGray, colors.purple),
+  Reactor:New("D", 3, colors.brown, colors.green, colors.red, colors.black)
+}
+
+aliveTick = 0
+function Tick()
+  for i=1, aliveTick do
+    term.write(".")
+  end
+  print("")
+  aliveTick = aliveTick + 1
+  if (aliveTick > 3) then
+    aliveTick = 0
+  end
+  
+  os.sleep(thinkTime)
+end
+
+while true do
+  
+  -- Check all reactors
+  for i=1,#reactorList do
+    reactorList[i]:CheckReactor()
+  end
+  
+  -- Show whats done
+  ShowReactorTable()
+  
+  Tick()
+end
+term.clear()
+term.setCursorPos(1,1)
+
