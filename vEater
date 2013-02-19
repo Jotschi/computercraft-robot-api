@@ -1,0 +1,27 @@
+os.loadAPI("disk/advrs")
+advrs.setSides("back", "back")
+
+mtth = 0.2
+ptth = 0.25
+
+function stopWrap(color)
+  
+  while (advrs.isSet(colors.red)) do
+    print("User stop enabled")
+    os.sleep(1)
+  end
+  
+  advrs.switch(colors.gray, ptth)
+  advrs.switch(color, mtth)
+end
+
+while true do
+  
+  stopWrap(colors.white)
+  stopWrap(colors.orange)
+  stopWrap(colors.magenta)
+  stopWrap(colors.lightBlue)
+  stopWrap(colors.yellow)
+  stopWrap(colors.lime)
+  advrs.switch(colors.pink, mtth)
+end

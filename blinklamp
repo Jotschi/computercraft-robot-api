@@ -1,0 +1,20 @@
+os.loadAPI("disk/advrs")
+
+advrs.setSides("bottom", "bottom")
+
+local time = 0.65
+
+list = {}
+list[0] = colors.white
+list[1] = colors.lime
+list[2] = colors.pink
+list[3] = colors.gray
+list[4] = colors.orange
+
+while true do
+  for i=0,4 do
+    advrs.toggle(list[i])
+    os.sleep(time)
+    advrs.toggle(list[i])
+  end
+end

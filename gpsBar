@@ -1,0 +1,68 @@
+-- API
+os.loadAPI("disk/cClient")
+
+-- Vars
+local sec = peripheral.wrap("left")
+local pri = {}
+pri.width, pri.height = term.getSize()
+
+function clear()
+  term.clear()
+  term.setCursorPos(1,1)
+  for i=1, pri.width do
+    paintutils.drawLine(i,1,i,pri.height,colors.black)
+  end
+end
+
+function getCruncherHeight()
+  local statusData = cClient.sendRequestFor({cmd="status"})
+  if (statusData) then
+     return  statusData["height"];
+  end
+
+  return false
+end
+
+function drawCoordSystem(currentHeight)
+  clear()
+  
+  for i=1, pri.height, 1 do
+    
+    if (i%5 == 0) then
+      local pos = i+currentHeight%5
+      paintutils.drawPixel(1, pos, colors.white)
+      term.setTextColor(colors.black)
+      term.setCursorPos(1, pos)
+      term.write(tostring(math.abs(pos - pri.height/2 - currentHeight)))
+    end
+    
+    if (i == 130) then
+      term.setCursorPos(1, i)
+      term.setTextColor(colors.brown)
+    end
+    
+    if (i == pri.height/2) then
+      paintutils.drawPixel(pri.width, i, colors.red)
+    end
+  end
+end
+
+local height = 150.0
+while true do
+   --local height = 150.0 -- getCruncherHeight()
+
+   if (height) then
+     sec.setCursorPos(1,1)
+     sec.clearLine()
+     sec.write(height)
+     
+     drawCoordSystem(height)
+     
+   end
+   
+   height = height - 1
+   if (height <= 140) then
+     height = 150
+   end
+   os.sleep(1)  
+end

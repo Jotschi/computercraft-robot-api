@@ -1,0 +1,18 @@
+os.loadAPI("disk/remoteCruncher")
+
+cClient.sendRequestFor({cmd="gpsdock"})
+remoteCruncher.waitFor("gpsdock")
+
+cClient.sendRequestFor({cmd="move", direction="forward", steps=11})
+remoteCruncher.waitFor("moveforward")
+
+cClient.sendRequestFor({cmd="gpsundock"})
+remoteCruncher.waitFor("gpsundock")
+
+cClient.sendRequestFor({cmd="mining",nSteps=250})
+remoteCruncher.waitFor("mining")
+
+print("-----------------")
+print("All done. Have a nice eternal day")
+print("-----------------")
+

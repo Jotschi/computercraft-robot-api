@@ -1,0 +1,30 @@
+os.loadAPI("disk/cClient")
+
+function getJobStatus(cmdname)
+  while true do
+    local statusData = cClient.sendRequestFor({cmd="job-status",jobname=cmdname})
+    if not (statusData) then
+      return false
+    else
+      return statusData["state"]
+    end
+  end
+end
+
+function waitFor(cmd)
+  print("Waiting for Job '" .. tostring(cmd) .. "'...")
+  while true do
+     local status = getJobStatus(cmd);
+    if (status == "NOTFOUND") then
+      local exitData = cClient.getExitCode(data)
+      if (exitData) then
+        print("Finally i got " .. tostring(exitData.code))
+      end
+      break
+    else
+      print("Job '" .. tostring(cmd) .. "': " .. tostring(status))
+    end
+    os.sleep(2)
+  end
+end
+
