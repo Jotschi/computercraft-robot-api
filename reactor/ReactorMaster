@@ -1,10 +1,23 @@
+-- Load API
 os.loadAPI("disk/advrs")
+
 -- Config --
 advrs.setSides("left", "left")
 thinkTime = 0.5
+
+reactorList = {
+  Reactor:New("A", 3, colors.magenta, colors.orange, colors.white, colors.lightBlue),
+  Reactor:New("B", 3, colors.pink, colors.lime, colors.yellow, colors.gray),
+  Reactor:New("C", 3, colors.blue, colors.cyan, colors.lightGray, colors.purple),
+  Reactor:New("D", 3, colors.brown, colors.green, colors.red, colors.black)
+}
 -- Config End --
 
--- Reactor 'class'
+-- ##############################################
+--
+-- Reactor Class
+--
+-- ############################################## 
 Reactor = {
   name = "0",
   restTime = 0,
@@ -13,6 +26,9 @@ Reactor = {
   colorThermalHot = 0,
   colorMfsu = 0,
 }
+-- ##############################################
+-- Constructor
+-- ############################################## 
 function Reactor:New(name, restTime, colorReactor, colorThermalCold, colorThermalHot, colorMfsu)
   local obj = setmetatable({}, {__index = self})
   obj.name = name
@@ -23,7 +39,9 @@ function Reactor:New(name, restTime, colorReactor, colorThermalCold, colorTherma
   obj.colorMfsu = colorMfsu
   return obj
 end
-  
+-- ##############################################
+-- Methods
+-- ############################################## 
 function Reactor:IsHot()
   return advrs.isSet(self.colorThermalHot)
 end
@@ -41,6 +59,61 @@ function Reactor:SetReactorState(state)
     advrs.add(self.colorReactor)
   else
     advrs.remove(self.colorReactor)
+  end
+end
+
+function Reactor:Shutdown()
+  self:SetReactorState(false)
+end
+
+function Reactor:CheckReactor()
+
+  if (self:IsMfsuFull()) then
+    self:SetReactorState(false)
+    self:SetRestTime(5)
+    return
+  end
+  
+  if (self:ReduceRestTime()) then
+    return
+  end
+  
+  if (self:IsHot()) then
+    self:SetReactorState(false)
+    return
+  end
+  
+  if (self:IsCold()) then
+    self:SetReactorState(true)
+    return
+  end
+end
+
+function Reactor:SetRestTime(restTime)
+  self.restTime = restTime / thinkTime
+end
+
+function Reactor:GetRestTime()
+  return self.restTime * thinkTime
+end
+
+function Reactor:ReduceRestTime()
+  if (self.restTime > 0) then
+    self.restTime = self.restTime - 1
+    return true
+  else
+    self.restTime = 0
+    return false
+  end
+end
+
+-- ##############################################
+-- Print Stuff
+-- ##############################################
+function ShowReactorTable()
+  Reactor:PrintTableHead()
+  for i=1,#reactorList do
+    reactorList[i]:PrintTableLine()
   end
 end
 
@@ -75,70 +148,10 @@ function Reactor:toX(color)
     return "[ ]"
   end
 end
-
-function Reactor:SetRestTime(restTime)
-  self.restTime = restTime / thinkTime
-end
-
-function Reactor:GetRestTime()
-  return self.restTime * thinkTime
-end
-
-function Reactor:ReduceRestTime()
-  if (self.restTime > 0) then
-    self.restTime = self.restTime - 1
-    return true
-  else
-    self.restTime = 0
-    return false
-  end
-end
-      
-function Reactor:CheckReactor()
-
-  if (self:IsMfsuFull()) then
-    self:SetReactorState(false)
-    self:SetRestTime(5)
-    return
-  end
-  
-  if (self:ReduceRestTime()) then
-    return
-  end
-  
-  if (self:IsHot()) then
-    self:SetReactorState(false)
-    return
-  end
-  
-  if (self:IsCold()) then
-    self:SetReactorState(true)
-    return
-  end
-  
-end
-
-function Reactor:Shutdown()
-  self:SetReactorState(false)
-end
--- Reactor 'class' End
-
-function ShowReactorTable()
-  Reactor:PrintTableHead()
-  for i=1,#reactorList do
-    reactorList[i]:PrintTableLine()
-  end
-end
+-- Reactor Class End
 
 
-reactorList = {
-  Reactor:New("A", 3, colors.magenta, colors.orange, colors.white, colors.lightBlue),
-  Reactor:New("B", 3, colors.pink, colors.lime, colors.yellow, colors.gray),
-  Reactor:New("C", 3, colors.blue, colors.cyan, colors.lightGray, colors.purple),
-  Reactor:New("D", 3, colors.brown, colors.green, colors.red, colors.black)
-}
-
-aliveTick = 0
+local aliveTick = 0
 function Tick()
   for i=1, aliveTick do
     term.write(".")
@@ -148,7 +161,6 @@ function Tick()
   if (aliveTick > 3) then
     aliveTick = 0
   end
-  
   os.sleep(thinkTime)
 end
 
@@ -162,6 +174,7 @@ while true do
   -- Show whats done
   ShowReactorTable()
   
+  -- Show that actuall something is done
   Tick()
 end
 term.clear()
