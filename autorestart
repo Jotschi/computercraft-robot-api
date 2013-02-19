@@ -1,5 +1,4 @@
 local args = { ... }
-print("Args1: "..args[1])
 
 print("Starting in..")
 for i=3,0,-1 do
@@ -9,7 +8,7 @@ end
 
 while true do
   shell.setDir("disk")
-  if (shell.run("cruncher")) then
+  if (shell.run(args[1])) then
     print("Termination detected")
     break
   else
