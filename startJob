@@ -1,3 +1,4 @@
+-- Starts the remoteCruncher job
 os.loadAPI("disk/remoteCruncher")
 
 cClient.sendRequestFor({cmd="gpsdock"})

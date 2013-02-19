@@ -1,0 +1,3 @@
+local socket = http.get("http://minecraft.office/git.php")
+local text = socket.readAll()
+print(text)  
