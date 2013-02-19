@@ -1,0 +1,7 @@
+if (args[1] == "pull) then
+  local socket = http.get("http://minecraft.office/git.php?id="..args[1])
+  local text = socket.readAll()
+  print(text)  
+else 
+  print("Currently only git pull is supported")
+end
