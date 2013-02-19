@@ -7,8 +7,8 @@ for i=3,0,-1 do
 end 
 
 while true do
-  shell.setDir("disk")
-  if (shell.run(args[1])) then
+  shell.setDir(args[1])
+  if (shell.run(args[2])) then
     print("Termination detected")
     break
   else
