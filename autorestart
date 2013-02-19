@@ -1,6 +1,8 @@
+local args = { ... }
+print("Args1: "..args[1])
 
 print("Starting in..")
-for i=4,0 do
+for i=3,0,-1 do
   print(i)
   os.sleep(1)
 end 
