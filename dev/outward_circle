@@ -9,12 +9,12 @@ function runCircle(maxX, maxY, startX, startY, callback)
 
 	for i=0,maxI do
 	if ((-maxY / 2 <= x) and (x <= maxX / 2) and (-maxY / 2 <= y) and (y <= maxY / 2)) then
-		if (sX==x) and (sY==y) then
+		if (startX==x) and (startY==y) then
 			skip=false
 		end
 
 		if not (skip) then
-			callback(x,y);
+			callback(x,y)
 		end
 
 	end
@@ -31,8 +31,8 @@ end
 function paintPixel(x,y)
 	local xP = x + 41
 	local yP = y + 20
-	paintutils.drawPixel(xP,yP, color)
+	paintutils.drawPixel(xP,yP, colors.yellow)
 	os.sleep(0.015)
 end
 
-runCircle(100,100, 0, 0, paintPixel)
+runCircle(100,100, 14, 11, paintPixel)
