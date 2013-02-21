@@ -26,13 +26,13 @@ function getID()
   end
 end
 
-if (args[1] == "pull") then
+if (args[1] == "pull") or (args[1] == "checkout") then
   local diskId = getID()
   local socket = http.get("http://minecraft.office/git.php?id="..diskId .. "&cmd="..args[1].."%20"..args[2].."%20"..args[3])
     local text = socket.readAll()
   print(text)  
 else 
-  print("Currently only git pull is supported")
+  print("Currently only git pull/checkout is supported")
 end
 
 
