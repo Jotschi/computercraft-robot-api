@@ -4,6 +4,7 @@ os.loadAPI("/disk/apis/advrs")
 -- Config --
 advrs.setSides("left", "left")
 thinkTime = 0.5
+restTimeAfterMfsuFull = 20.0
 -- Config End --
 
 -- ##############################################
@@ -63,7 +64,7 @@ function Reactor:CheckReactor()
 
   if (self:IsMfsuFull()) then
     self:SetReactorState(false)
-    self:SetRestTime(5)
+    self:SetRestTime(restTimeAfterMfsuFull)
     return
   end
   
@@ -174,7 +175,7 @@ while true do
   -- Show whats done
   ShowReactorTable()
   
-  -- Show that actuall something is done
+  -- Show that actual something is done
   Tick()
 end
 term.clear()
